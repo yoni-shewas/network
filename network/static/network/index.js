@@ -23,6 +23,7 @@ function load() {
     counter = end + 1;
     fetch('')
 
+    post = document.getElementById('post-btn');
 
 
     // Get new posts and add posts
@@ -50,7 +51,7 @@ function add_post(contents) {
 
     // Create new post
     const post = document.createElement('div');
-    post.className = `${contents.id}_post`;
+    post.className = "post";
 
     console.log(contents);
     
@@ -62,15 +63,15 @@ function add_post(contents) {
     containerID =  `${contents.id}_container`;
     container.setAttribute('id',containerID);
     let posted = document.createElement('h3');
-    
-    console.log(container, "hello div");
     posted.innerHTML = contents.post;
-    container.setAttribute('id', `${contents.id}_content`);
+    posted.setAttribute=('id', `${contents.id}_content`);
     container.appendChild(posted);
+
+   
     
     if(contents.edited){
         let edited = document.createElement('a');
-        edit.innerHTML = 'Edited';
+        edited.innerHTML = 'Edited';
     }
 
     let date = document.createElement('p');
@@ -114,52 +115,73 @@ function add_post(contents) {
 
     
     post.appendChild(poster);
-   
+
     if (contents.viewer === contents.poster_id) {
         let edit = document.createElement('a');
         edit.innerHTML = 'Edit';
-        edit.onclick = Edit(contents.id)
-        edit.setAttribute("class", "text-primary")
+        edit.setAttribute("id", `${contents.id}_edit`);        
+        edit.setAttribute("class", "text-primary");
         edit.addEventListener("mouseover", function() {
             edit.style.cursor = "pointer";
         });
-        edit.onclick = function() {
-            id = contents.id;
-            content  = contents.pos
-            Edit(event, id);
-        };;
         post.appendChild(edit);
+    
+        // Attach onclick event handler
+        edit.onclick = function() {
+            let id = contents.id;
+            // let content = contents.post; // Corrected assignment
+            Edit(event, id, contents);
+        };
     }
+   
     
 
     post.appendChild(container);
+
+    if(contents.edited){
+        let edited = document.createElement('a');
+        edited.innerHTML = 'Edited';
+        post.appendChild(edited)
+    }
     post.appendChild(date);
     post.appendChild(svg);
     post.appendChild(like);
+    
 
     // Add post to DOM
     document.querySelector('#posts').append(post);
+
+    // alert(document.getElementById(containerID), "contents");
 };
 
 function Edit(event, id, content){
-    let contain = `${id}_contain`;
+    let contain = `${id}_container`;
+    
     try{
         let container = document.getElementById(contain);
         console.log(container);
         container.innerHTML = " ";
+        // alert(container)
         let edited_content = document.createElement('textarea');
         edited_content.setAttribute("class", "form-control");
         edited_content.setAttribute("id", `${id}_content`);
         let edit_button = document.createElement('button');
         edit_button.setAttribute("id", `${id}_edit`);
         edit_button.setAttribute("class", "btn btn-primary");
-        edited_content.setAttribute("value", content);
+        edited_content.value = content.post;
 
         edit_button.innerHTML = "Edit";
         container.appendChild(edited_content);
         container.appendChild(edit_button);
+        edit_button.addEventListener("mouseover", function() {
+            edit_button.style.cursor = "pointer";
+        });
+        edit_button.disabled = true;
+        edited_content.onkeyup = function(event){
+
+        edit_button.disabled = false;
         
-        edit_button.onclick = function() {
+        edit_button.onclick = function(e) {
             
             fetch('edit',{
                 method: 'PUT',
@@ -169,14 +191,31 @@ function Edit(event, id, content){
                 },
                 body: JSON.stringify({
                     'id': id,
-                    'content': content
+                    'content': event.target.value
                 })
-            });}
+            }).then(response => {
+                // Check if the update was successful
+                if (response.ok) {
+                    container.innerHTML = " ";
+                    contentID = `${content.id}_content`
+                    
+                    let edited_content = document.createElement('h3');
+                    edited_content.innerHTML = content.post;
+                    container.appendChild(edited_content);
+
+
+                } else {
+                    console.error('Error updating content:', response.statusText);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
             edit_button.addEventListener("mouseover", function() {
                 edit_button.style.cursor = "pointer";
             });
-
-            load();
+        }
 
 
         }

@@ -167,6 +167,8 @@ def edit(request):
         try:
             post = Post.objects.get(pk=id)
             post.post = data.get("content")
+            post.edited = True
+            print(data.get("content"))
             post.save()
             return JsonResponse({"message": "Post updated successfully"})
         except Post.DoesNotExist:
