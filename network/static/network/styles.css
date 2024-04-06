@@ -1,3 +1,15 @@
 .body{
     margin: 2em;
 }
+body{
+    background-color: #1C1C1E;
+    color: #EDEDED ;
+}
+
+.post{
+    margin-top: 2em;
+    margin-bottom: 2em;
+    padding: 1em;
+    border: 1px solid rgb(195, 191, 191);
+    border-radius: 2em;
+}

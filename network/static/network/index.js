@@ -5,7 +5,9 @@ let counter = 0;
 const quantity = 20;
 
 // When DOM loads, render the first 20 posts
-document.addEventListener('DOMContentLoaded', load);
+document.addEventListener('DOMContentLoaded', () => {
+    load();
+});
 
 // If scrolled to bottom, load the next 20 posts
 window.onscroll = () => {
@@ -42,10 +44,12 @@ function load() {
         }
 
     })
+
+    
 };
 
 // Add a new post with given contents to DOM
-function add_post(contents) {
+function add_post(contents, isTop=false) {
 
     console.log(contents);
 
@@ -124,7 +128,7 @@ function add_post(contents) {
         edit.addEventListener("mouseover", function() {
             edit.style.cursor = "pointer";
         });
-        post.appendChild(edit);
+            post.appendChild(edit);
     
         // Attach onclick event handler
         edit.onclick = function() {
@@ -135,7 +139,6 @@ function add_post(contents) {
     }
    
     
-
     post.appendChild(container);
 
     if(contents.edited){
@@ -147,11 +150,13 @@ function add_post(contents) {
     post.appendChild(svg);
     post.appendChild(like);
     
-
-    // Add post to DOM
-    document.querySelector('#posts').append(post);
-
-    // alert(document.getElementById(containerID), "contents");
+    if(!isTop){
+        // Add post to DOM
+        document.querySelector('#posts').append(post);
+    }
+    else{
+        document.querySelector('#posts').prepend(post);
+    }
 };
 
 function Edit(event, id, content){
@@ -182,7 +187,7 @@ function Edit(event, id, content){
         edit_button.disabled = false;
         
         edit_button.onclick = function(e) {
-            
+            post_content = event.target.value
             fetch('edit',{
                 method: 'PUT',
                 headers: {
@@ -191,7 +196,7 @@ function Edit(event, id, content){
                 },
                 body: JSON.stringify({
                     'id': id,
-                    'content': event.target.value
+                    'content': post_content
                 })
             }).then(response => {
                 // Check if the update was successful
@@ -200,7 +205,7 @@ function Edit(event, id, content){
                     contentID = `${content.id}_content`
                     
                     let edited_content = document.createElement('h3');
-                    edited_content.innerHTML = content.post;
+                    edited_content.innerHTML = post_content;
                     container.appendChild(edited_content);
 
 
@@ -251,7 +256,7 @@ function liked(event, id) {
         // Now you can access the data returned from the server
         if (data && data.likes !== undefined) {
             // Request was successful
-            
+            console.log(data);
             if (path) {
                 console.log(path);
                 if (data.isLiked){
@@ -280,6 +285,45 @@ function liked(event, id) {
             console.error('Request failed or response is unexpected');
         }
         // load();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+
+// function deletePost(event, id) {
+//     event.preventDefault();
+// }
+
+function submitPost(event){
+    event.preventDefault();
+    const form = document.getElementById("post-form");
+
+    const formData = new FormData(form);
+    const post = formData.get("post");
+
+    fetch('post', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken') // Function to retrieve CSRF token from cookie
+        },
+        body: JSON.stringify({
+            'post': post
+        })
+
+    }).then(response => response.json())
+    .then(data => {
+        if (data && data.data.post!== undefined) {
+            // Request was successful
+            console.log('Request successful');
+            add_post(data.data, true);
+        } else {
+            // Request failed or response is unexpected
+            console.log(data.post);
+            console.error('Request failed or response is unexpected');
+        }
     })
     .catch(error => {
         console.error('Error:', error);

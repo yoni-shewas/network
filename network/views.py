@@ -10,6 +10,7 @@ from .models import User, Post, Like
 from django import forms
 from django.http import JsonResponse
 from django.core.serializers import serialize
+from django.utils import timezone
 
 
 from .models import User
@@ -96,21 +97,37 @@ def register(request):
 
 
 def post_view(request):
+    print(timezone.now())
     if request.method == "POST":
-        form = postForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.poster = request.user
-            post.save()
-            return HttpResponseRedirect(reverse("index"))
-        else:
-            print("hi")
-    else:
-        form = postForm()
+        # Access the 'post' field directly from the form data
+        data = json.loads(request.body)
+        post = data.get("post")
 
-    return render(request, "network/index.html", {
-        "form": form,
-    })
+        if not post:
+            return JsonResponse({'error': 'No post provided'}, status=400)
+        else:
+            post = Post.objects.create(post=post, poster=request.user)
+            post.save()
+            Id = request.user.id
+            data = {
+                "id": post.id,
+                "post": post.post,
+                "likes": 0,
+                "date": post.formatted_dateListed(),
+                "poster": post.poster.username,
+                "poster_id": post.poster.id,
+                "edited": post.edited,
+                "viewer": Id,
+                "liked": False
+            }
+            # Artificially delay speed of response
+            time.sleep(1)
+
+            return JsonResponse({
+                "data": data
+            })
+    else:
+        return JsonResponse({'error': 'No post provided'}, status=400)
 
 
 def posts_list(request):
@@ -127,7 +144,7 @@ def posts_list(request):
 
     posts = Post.objects.all().order_by('-date')[start:end+1]
     print(request.user.id)
-    id = request.user.id
+    Id = request.user.id
 
     data = {
         "posts": [
@@ -139,7 +156,7 @@ def posts_list(request):
                 "poster": post.poster.username,
                 "poster_id": post.poster.id,
                 "edited": post.edited,
-                "viewer": id,
+                "viewer": Id,
                 "liked": (lambda: Like.objects.get(post=post, user=request.user).liked if Like.objects.filter(post=post, user=request.user).exists() else False)()
             }
             for post in posts

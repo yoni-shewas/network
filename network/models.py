@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 
 
 class User(AbstractUser):
@@ -12,7 +13,7 @@ class Post(models.Model):
     post = models.CharField(max_length=450)
     poster = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="posts")
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField(default=timezone.now())
     edited = models.BooleanField(default=False)
 
     def formatted_dateListed(self):

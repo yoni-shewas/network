@@ -5,10 +5,10 @@
         <h2>All posts</h2>
         
         <div class="col-md-4">
-            <form action="{% url "post" %}" method="POST">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button class="btn btn-primary post-btn" type="submit">Post</button>
+            <form id="post-form" onsubmit="submitPost(event)">
+                <label for="new-post">New Post</label>
+                <input type="text" class="form-control" id="post" name="post" required="true">
+                <button class="btn btn-primary post-btn"  type="submit">Post</button>
             </form>
            
         </div>
