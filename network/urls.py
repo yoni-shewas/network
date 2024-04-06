@@ -13,6 +13,7 @@ urlpatterns = [
     path("post", views.post_view, name="post"),
     path("like", views.like, name="like"),
     path("edit", views.edit, name="edit"),
+    path("profile", views.profile, name="profile"),
 ]
 
 # if settings.DEBUG:

@@ -6,7 +6,7 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from .models import User, Post, Like
+from .models import User, Post, Like, Follower
 from django import forms
 from django.http import JsonResponse
 from django.core.serializers import serialize
@@ -135,6 +135,7 @@ def posts_list(request):
     # Get start and end points
     start = int(request.GET.get("start") or 0)
     end = int(request.GET.get("end") or (start + 9))
+
     try:
         start = int(start)
         end = int(end)
@@ -235,3 +236,118 @@ def like(request):
         return JsonResponse({
             "likes": 0
         })
+
+
+def profile(request):
+    isUser = False
+
+    start = int(request.GET.get("startP") or 0)
+    end = int(request.GET.get("endP") or (start + 9))
+    user = str(request.GET.get("user" or (None)))
+
+    try:
+        start = int(start)
+        end = int(end)
+    except (TypeError, ValueError):
+        # Handle invalid start or end values
+        return JsonResponse({'error': 'Invalid start or end value'}, status=400)
+
+    try:
+        userID = User.objects.get(username=user)
+        userID = int(userID.id)
+        posts = Post.objects.filter(
+            poster=userID).order_by('-date')[start:end+1]
+    except Post.DoesNotExist:
+        return render(request, "network/profile.html", {
+            "message": "No posts found."
+        })
+
+    try:
+        followers = Follower.objects.filter(followed_user=userID).count()
+    except Follower.DoesNotExist:
+        followers = 0
+
+    try:
+        following = Follower.objects.filter(follower=userID).count()
+    except Follower.DoesNotExist:
+        following = 0
+
+    if str(request.user) == str(user):
+        isUser = True
+        print("user here")
+        Id = request.user.id
+
+        data = {
+            "followers": followers,
+            "following": following,
+            "userProfile": user,
+            "isUser": isUser,
+            "posts": [
+                {
+                    "id": post.id,
+                    "post": post.post,
+                    "likes": Like.objects.filter(post=post, liked=True).count(),
+                    "date": post.formatted_dateListed(),
+                    "poster": post.poster.username,
+                    "poster_id": post.poster.id,
+                    "edited": post.edited,
+                    "viewer": Id,
+                    "liked": (lambda: Like.objects.get(post=post, user=request.user).liked if Like.objects.filter(post=post, user=request.user).exists() else False)()
+                }
+                for post in posts
+            ]
+        }
+        # Artificially delay speed of response
+        time.sleep(1)
+
+        # Return list of posts
+        return JsonResponse({
+            "posts": data,
+        })
+
+    else:
+        Id = request.user.id
+
+        data = {
+            "followers": followers,
+            "following": following,
+            "user-profile": user,
+            "isUser": isUser,
+            "posts": [
+                {
+                    "id": post.id,
+                    "post": post.post,
+                    "likes": Like.objects.filter(post=post, liked=True).count(),
+                    "date": post.formatted_dateListed(),
+                    "poster": post.poster.username,
+                    "poster_id": post.poster.id,
+                    "edited": post.edited,
+                    "viewer": Id,
+                    "liked": (lambda: Like.objects.get(post=post, user=request.user).liked if Like.objects.filter(post=post, user=request.user).exists() else False)()
+                }
+                for post in posts
+            ]
+        }
+        # Artificially delay speed of response
+        time.sleep(1)
+
+        # Return list of posts
+        return JsonResponse({
+            "posts": data,
+        })
+
+
+def follow(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        user = data.get("user")
+        try:
+            follower = Follower.objects.get(
+                follower=request.user, followed_user=user)
+            follower.delete()
+            return JsonResponse({"message": "You are no longer following this user."})
+        except Follower.DoesNotExist:
+            follower = Follower.objects.create(
+                follower=request.user, followed_user=user)
+            follower.save()
+            return JsonResponse({"message": "You are now following this user."})

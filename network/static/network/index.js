@@ -2,7 +2,13 @@
 let counter = 0;
 
 // Load posts 20 at a time
-const quantity = 20;
+const quantity = 10;
+
+// Start with first post
+let counterP = 0;
+
+// Load posts 20 at a time
+const quantityP = 10;
 
 // When DOM loads, render the first 20 posts
 document.addEventListener('DOMContentLoaded', () => {
@@ -23,9 +29,14 @@ function load() {
     const start = counter;
     const end = start + quantity - 1;
     counter = end + 1;
+
+    
     fetch('')
 
     post = document.getElementById('post-btn');
+
+    post = document.getElementById("poster-h2")
+    post.innerHTML = `All posts`;
 
 
     // Get new posts and add posts
@@ -45,28 +56,40 @@ function load() {
 
     })
 
+
+
+
     
 };
 
 // Add a new post with given contents to DOM
 function add_post(contents, isTop=false) {
 
-    console.log(contents);
 
     // Create new post
     const post = document.createElement('div');
     post.className = "post";
-
-    console.log(contents);
     
     let poster = document.createElement('h4');
-    poster.innerHTML = contents.poster;
-   
+    poster.innerHTML = `@${contents.poster}`;
+    poster.className = "poster";
+    poster.id = `${contents.poster}_poster`;
 
+    poster.addEventListener("mouseover", function() {
+        poster.style.cursor = "pointer";
+    });
+
+    poster.onclick = function(event){
+        event.preventDefault();
+        // window.location.href = `/profile/${contents.poster}`;
+        profile(event, contents);
+    }
+
+   
     let container = document.createElement('div');
     containerID =  `${contents.id}_container`;
     container.setAttribute('id',containerID);
-    let posted = document.createElement('h3');
+    let posted = document.createElement('h5');
     posted.innerHTML = contents.post;
     posted.setAttribute=('id', `${contents.id}_content`);
     container.appendChild(posted);
@@ -83,8 +106,8 @@ function add_post(contents, isTop=false) {
     
     // Create SVG element
     var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("width", "20px");
-    svg.setAttribute("height", "20px");
+    svg.setAttribute("width", "18px");
+    svg.setAttribute("height", "18px");
     svg.setAttribute("viewBox", "0 -3.71 75.17 75.17");
     svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     svg.classList.add("svg-container");
@@ -100,6 +123,7 @@ function add_post(contents, isTop=false) {
     path.setAttribute("stroke-linejoin", "round");
     path.setAttribute("stroke-width", "3");
     path.id = `${contents.id}_fill`;
+    svg.setAttribute("class", "svg-fill");
 
     svg.appendChild(path);
 
@@ -146,9 +170,16 @@ function add_post(contents, isTop=false) {
         edited.innerHTML = 'Edited';
         post.appendChild(edited)
     }
-    post.appendChild(date);
-    post.appendChild(svg);
-    post.appendChild(like);
+    let likeContainer = document.createElement('div');
+    likeContainer.setAttribute('class', 'like-div');
+    likeContainer.appendChild(svg);
+    likeContainer.appendChild(like);
+    let containerInfo = document.createElement('div');
+    containerInfo.setAttribute('class', 'container-info');
+    containerInfo.appendChild(likeContainer);
+    containerInfo.appendChild(date);
+    post.appendChild(containerInfo);
+   
     
     if(!isTop){
         // Add post to DOM
@@ -260,7 +291,7 @@ function liked(event, id) {
             if (path) {
                 console.log(path);
                 if (data.isLiked){
-                    path.setAttribute("fill", "#0c2c67");
+                    path.setAttribute("fill", "#0088CC");
                 }
                 else{
                     path.setAttribute("fill", "none");
@@ -331,7 +362,67 @@ function submitPost(event){
 }
 
 
+function profile(event, content){
+    const startP = counterP;
+    const endP = startP + quantityP - 1;
+    counterP = endP + 1;
 
+    fetch(`/profile?start=${startP}&end=${endP}&user=${content.poster}`)
+    .then(response => response.json())
+    .then(data => {
+        // console.log(data);
+        // Check if data.posts is an array
+        if (Array.isArray(data.posts.posts)) {
+            // If it's an array, iterate over each post
+            previous = document.getElementById("posts");
+            previous.innerHTML = "";
+            for (let post of data.posts.posts){
+                // Pass each post object to profileStats and add_post functions
+                // console.log(post);
+                profileStats(data.posts);
+                add_post(post);
+            }
+        } else {
+            // If it's not an array, handle it accordingly (e.g., log an error)
+            console.error("Data.posts is not an array:", data.posts);
+        }
+
+    })
+}
+
+function profileStats(data) {
+    index = document.getElementById("index-div");
+    index.innerHTML = "";
+ 
+    post = document.getElementById("poster-h2")
+    post.innerHTML = `${data.userProfile} posts`;
+ 
+    let user = document.createElement("h1")
+    user.innerHTML = `${data.userProfile}`;
+ 
+    let divF = document.createElement("div")
+    divF.className =  "follow-stat"
+    let labelF = document.createElement("p")
+    labelF.innerHTML = "Followers"
+    let followers = document.createElement("p")
+    followers.innerHTML = `${data.followers}`
+    divF.appendChild(labelF)
+    divF.appendChild(followers)
+ 
+    let divf = document.createElement("div")
+    divf.className =  "follow-stat"
+    let labelf = document.createElement("p")
+    labelf.innerHTML = "Following"
+    let following = document.createElement("p")
+    following.innerHTML = `${data.following}`
+    divf.appendChild(labelf)
+    divf.appendChild(following)
+ 
+    index.appendChild(user)
+    index.appendChild(divF)
+    index.appendChild(divf)
+ }
+ 
 
 
 function getCookie(name) {

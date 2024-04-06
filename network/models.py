@@ -30,10 +30,19 @@ class Comment(models.Model):
     pass
 
 
-class followers(models.Model):
-    id = models.BigAutoField(primary_key=True)
+class Follower(models.Model):
     follower = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="followers")
+        User, related_name='following', on_delete=models.CASCADE)
+    followed_user = models.ForeignKey(
+        User, related_name='followers', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        # Ensure uniqueness of follower-followed_user pair
+        unique_together = ('follower', 'followed_user')
+
+    def __str__(self):
+        return f"{self.follower} follows {self.followed_user}"
 
 
 class Like(models.Model):
