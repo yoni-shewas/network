@@ -14,6 +14,7 @@ urlpatterns = [
     path("like", views.like, name="like"),
     path("edit", views.edit, name="edit"),
     path("profile", views.profile, name="profile"),
+    path("follow", views.follow, name="follow"),
 ]
 
 # if settings.DEBUG:

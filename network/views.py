@@ -11,6 +11,7 @@ from django import forms
 from django.http import JsonResponse
 from django.core.serializers import serialize
 from django.utils import timezone
+from django.contrib.auth import get_user_model
 
 
 from .models import User
@@ -238,12 +239,19 @@ def like(request):
         })
 
 
+is_following = False  # Set initial value
+
+
 def profile(request):
     isUser = False
 
     start = int(request.GET.get("startP") or 0)
     end = int(request.GET.get("endP") or (start + 9))
-    user = str(request.GET.get("user" or (None)))
+    user = request.GET.get("user", None)
+
+    print("User query parameter sadas")
+
+    print(start, " ", end)
 
     try:
         start = int(start)
@@ -253,14 +261,56 @@ def profile(request):
         return JsonResponse({'error': 'Invalid start or end value'}, status=400)
 
     try:
-        userID = User.objects.get(username=user)
-        userID = int(userID.id)
-        posts = Post.objects.filter(
-            poster=userID).order_by('-date')[start:end+1]
-    except Post.DoesNotExist:
-        return render(request, "network/profile.html", {
-            "message": "No posts found."
-        })
+        currentUser = str(request.user)
+        currentuserID = User.objects.get(username=currentUser)
+        currentuserID = int(currentuserID.id)
+
+        if user != "null":
+            is_following = False
+            print("given user P" + str(user))
+            try:
+                userID = User.objects.get(username=user)
+                userID = int(userID.id)
+            except User.DoesNotExist:
+                return JsonResponse({'error': 'User does not exist'}, status=404)
+
+            posts = Post.objects.filter(
+                poster=userID).order_by('-date')[start:end+1]
+            try:
+                follows = Follower.objects.get(
+                    followed_user=userID, follower=currentuserID)
+                followes_U = True
+            except Follower.DoesNotExist:
+                followes_U = False
+        else:
+            is_following = True
+            user = str(request.user.username)
+            # Update is_following here
+            print("requested user P" + str(request.user.username))
+            try:
+                userID = User.objects.get(username=request.user.username)
+                userID = int(userID.id)
+                follows = Follower.objects.filter(follower=userID)
+            except User.DoesNotExist:
+                return JsonResponse({'error': 'User does not exist'}, status=404)
+
+            posts = []
+
+            if follows.exists():
+                for user_obj in follows:
+                    # Verify Follower objects
+                    print(f"Follower object: {user_obj}")
+                    followed_posts = Post.objects.filter(
+                        poster=user_obj.followed_user.id).order_by('-date')[start:end+1]
+                    for post in followed_posts:
+                        # Verify followed posts
+                        print(f"Followed post: {post}")
+                        posts.append(post)
+
+            followes_U = True
+
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'User does not exist'}, status=404)
 
     try:
         followers = Follower.objects.filter(followed_user=userID).count()
@@ -272,16 +322,21 @@ def profile(request):
     except Follower.DoesNotExist:
         following = 0
 
-    if str(request.user) == str(user):
+    # print(request.user)
+    if str(request.user) == str(user) or user == "null":
         isUser = True
-        print("user here")
+        # print("user here")
+        # print(f"{posts} posts")
         Id = request.user.id
 
         data = {
-            "followers": followers,
-            "following": following,
+            "isfollowing": followes_U,
+            "followers": int(followers),
+            "following": int(following),
             "userProfile": user,
+            "user": currentUser,
             "isUser": isUser,
+            "is_following": is_following,
             "posts": [
                 {
                     "id": post.id,
@@ -309,9 +364,11 @@ def profile(request):
         Id = request.user.id
 
         data = {
-            "followers": followers,
-            "following": following,
-            "user-profile": user,
+            "isfollowing": followes_U,
+            "followers": int(followers),
+            "following": int(following),
+            "userProfile": user,
+            "user": currentUser,
             "isUser": isUser,
             "posts": [
                 {
@@ -337,17 +394,54 @@ def profile(request):
         })
 
 
+User = get_user_model()
+
+
 def follow(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        user = data.get("user")
+        userJs = data.get("user")
+
         try:
-            follower = Follower.objects.get(
-                follower=request.user, followed_user=user)
-            follower.delete()
-            return JsonResponse({"message": "You are no longer following this user."})
-        except Follower.DoesNotExist:
-            follower = Follower.objects.create(
-                follower=request.user, followed_user=user)
-            follower.save()
-            return JsonResponse({"message": "You are now following this user."})
+            userGet = User.objects.get(username=userJs)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User does not exist'}, status=404)
+
+        # Get the count of followers for the user being followed
+        following_count = Follower.objects.filter(
+            followed_user=userGet).count()
+        print(f"{following_count} followed user")
+
+        if request.user != userGet:
+            try:
+                follower = Follower.objects.get(
+                    follower=request.user, followed_user=userGet)
+                follower.delete()
+
+                # If the follower relationship is deleted, decrement the following count
+                following_count -= 1
+                return JsonResponse({
+                    "message": "You are no longer following this user.",
+                    "isFollow": False,
+                    "following": following_count,
+                    "user": userJs
+                })
+            except Follower.DoesNotExist:
+                follower = Follower.objects.create(
+                    follower=request.user, followed_user=userGet)
+                follower.save()
+                # If a new follower relationship is created, increment the following count
+                following_count += 1
+                return JsonResponse({
+                    "message": "You are now following this user.",
+                    "isFollow": True,
+                    "following": following_count,
+                    "user": userJs
+                })
+        else:
+            return JsonResponse({
+                "message": "You cannot follow yourself.",
+                "isFollow": False
+            })
+    else:
+        return JsonResponse({"error": "Method not allowed"}, status=405)

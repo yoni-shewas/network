@@ -13,7 +13,7 @@ class Post(models.Model):
     post = models.CharField(max_length=450)
     poster = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="posts")
-    date = models.DateTimeField(default=timezone.now())
+    date = models.DateTimeField(default=timezone.now)
     edited = models.BooleanField(default=False)
 
     def formatted_dateListed(self):
@@ -31,18 +31,19 @@ class Comment(models.Model):
 
 
 class Follower(models.Model):
+    id = models.BigAutoField(primary_key=True)
     follower = models.ForeignKey(
         User, related_name='following', on_delete=models.CASCADE)
     followed_user = models.ForeignKey(
         User, related_name='followers', on_delete=models.CASCADE)
-    created_at = models.DateTimeField(default=timezone.now())
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         # Ensure uniqueness of follower-followed_user pair
         unique_together = ('follower', 'followed_user')
 
-    def __str__(self):
-        return f"{self.follower} follows {self.followed_user}"
+    # def __str__(self):
+    #     return f"{self.follower} follows {self.followed_user}"
 
 
 class Like(models.Model):
