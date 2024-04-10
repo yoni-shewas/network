@@ -9,12 +9,16 @@ urlpatterns = [
     path("login", views.login_view, name="login"),
     path("logout", views.logout_view, name="logout"),
     path("register", views.register, name="register"),
-    path("posts/", views.posts_list, name="posts"),
+    path("posts", views.posts_list, name="posts"),
     path("post", views.post_view, name="post"),
     path("like", views.like, name="like"),
     path("edit", views.edit, name="edit"),
     path("profile", views.profile, name="profile"),
     path("follow", views.follow, name="follow"),
+    path("comment", views.comment, name="comment"),
+    path("comments", views.comment, name="comments"),
+    path("editComment", views.comment, name="editComment"),
+    path("delete", views.comment, name="delete"),
 ]
 
 # if settings.DEBUG:

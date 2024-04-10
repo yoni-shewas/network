@@ -6,12 +6,14 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from .models import User, Post, Like, Follower
+
+from .models import User, Post, Like, Follower, Comment
 from django import forms
 from django.http import JsonResponse
 from django.core.serializers import serialize
 from django.utils import timezone
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 
 
 from .models import User
@@ -97,6 +99,7 @@ def register(request):
         return render(request, "network/register.html")
 
 
+@login_required
 def post_view(request):
     print(timezone.now())
     if request.method == "POST":
@@ -131,6 +134,7 @@ def post_view(request):
         return JsonResponse({'error': 'No post provided'}, status=400)
 
 
+@login_required
 def posts_list(request):
 
     # Get start and end points
@@ -178,6 +182,7 @@ def posts_list(request):
     })
 
 
+@login_required
 def edit(request):
 
     if request.method == "PUT":
@@ -196,6 +201,7 @@ def edit(request):
         return JsonResponse({"error": "Method not allowed"}, status=405)
 
 
+@login_required
 def like(request):
     if request.method == "POST":
         data = json.loads(request.body)
@@ -242,6 +248,7 @@ def like(request):
 is_following = False  # Set initial value
 
 
+@login_required
 def profile(request):
     isUser = False
 
@@ -397,6 +404,7 @@ def profile(request):
 User = get_user_model()
 
 
+@login_required
 def follow(request):
     if request.method == "POST":
         data = json.loads(request.body)
@@ -443,5 +451,78 @@ def follow(request):
                 "message": "You cannot follow yourself.",
                 "isFollow": False
             })
+    else:
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+
+
+@login_required
+def comment(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        id = data.get("id")
+        comment = data.get("comment")
+        try:
+            user = User.objects.get(username=request.user)
+            post = Post.objects.get(pk=id)
+            commented = Comment.objects.create(
+                comment=comment, post=post, commenter=user)
+            commented.save()
+            return JsonResponse({"message": "Post updated successfully"})
+        except Post.DoesNotExist:
+            return JsonResponse({"error": "Post does not exist"}, status=404)
+    elif request.method == "GET":
+        start = int(request.GET.get("start") or 0)
+        end = int(request.GET.get("end") or (start + 9))
+        id = str(request.GET.get("id") or None)
+
+        try:
+            start = int(start)
+            end = int(end)
+        except (TypeError, ValueError):
+            # Handle invalid start or end values
+            return JsonResponse({'error': 'Invalid start or end value'}, status=400)
+
+        comments = Comment.objects.filter(
+            post=id).order_by('date')[start:end+1]
+
+        data = {
+            "comments": [
+                {
+                    "id": comment.id,
+                    "post_id": comment.post.id,
+                    "comment": comment.comment,
+                    "commenter": comment.commenter.username,
+                    "date": comment.formatted_dateListed(),
+                }
+                for comment in comments
+            ],
+        }
+
+        # Return list of comments
+        return JsonResponse(data)
+
+    elif request.method == "DELETE":
+        data = json.loads(request.body)
+        id = data.get("id")
+        try:
+            comment = Comment.objects.get(pk=id)
+            comment.delete()
+            return JsonResponse({"message": "Post deleted successfully"})
+        except Comment.DoesNotExist:
+            return JsonResponse({"error": "Post does not exist"}, status=404)
+    elif request.method == "PUT":
+        data = json.loads(request.body)
+        id = data.get("id")
+        comment = data.get("comment")
+        try:
+            user = User.objects.get(username=request.user)
+            post = Post.objects.get(pk=id)
+            # Update the comment directly in the database
+            Comment.objects.filter(
+                post=post, commenter=user).update(comment=comment)
+            return JsonResponse({"message": "Post updated successfully"})
+        except Post.DoesNotExist:
+            return JsonResponse({"error": "Post does not exist"}, status=404)
+
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)

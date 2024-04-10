@@ -3,45 +3,74 @@ let counter = 0;
 
 // Load posts 20 at a time
 const quantity = 10;
+const quantityComment = 5;
 
 // Start with first post
-let counterP = 0;
+let counterP = 0; 
+let counterComment= 0; 
 
 // Load posts 20 at a time
 const quantityP = 10;
 
 isLoading = false;
 
-let contenGlobe = {}
+const paginationState = {};
+
+let contenGlobe = "null";
 
 // When DOM loads, render the first 20 posts
 document.addEventListener('DOMContentLoaded', () => {
     let following = document.getElementById("following");
 
-    // Add an event listener to the anchor element
-    following.addEventListener('click', (event) => {
+
+    const followingClickHandler = (event) => {
         event.preventDefault();
-        profile(event);
-    });
+        profile(event,"null",true);
+    };
+
+    // Add an event listener to the "following" anchor element
+    following.addEventListener('click', followingClickHandler);
 
     load();
+
+    const reattachFollowingListener = () => {
+        // Remove the previous event listener
+        following.removeEventListener('click', followingClickHandler);
+        // Add the event listener again
+        following.addEventListener('click', followingClickHandler);
+    }
+
+
+    
+    // Call the reattachFollowingListener function after calling profile
+    window.addEventListener('popstate', reattachFollowingListener);
+
 });
 
 // If scrolled to bottom, load the next 20 posts
-window.onscroll = () => {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight)  {
-        if(!isLoading)
-        {
+// Define debounce function
+function debounce(func, delay) {
+    let timeoutId;
+    return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            func.apply(context, args);
+        }, delay);
+    };
+}
+
+// Wrap your scroll event handler with debounce
+window.onscroll = debounce(() => {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        if (!isLoading) {
             load();
-        }
-        else{
-            // const urlParams = new URLSearchParams(window.location.search);
-            // const user = urlParams.get('user');
-            profile(event,contentGlobe);
+        } else {
+            profile(event, contentGlobe);
         }
     }
-};
-
+}, 300);
 // Load next set of posts
 function load() {
 
@@ -102,12 +131,15 @@ function add_post(contents, isTop=false) {
     poster.onclick = function(event){
         event.preventDefault();
         // window.location.href = `/profile/${contents.poster}`;
-        profile(event, contents.poster);
+        profile(event, contents.poster, false);
     }
 
    
     let container = document.createElement('div');
     containerID =  `${contents.id}_container`;
+    let info = document.createElement('div');
+    info.id = `${contents.id}_info`;
+    container.appendChild(info);
     container.setAttribute('id',containerID);
     let posted = document.createElement('h5');
     posted.innerHTML = contents.post;
@@ -191,6 +223,46 @@ function add_post(contents, isTop=false) {
             Edit(event, id, contents);
         };
     }
+    let commentContainer = document.createElement('div');
+    commentContainer.setAttribute('class', 'comment-div');
+    commentContainer.setAttribute('id', `comment_container`);
+
+    let comment = document.createElement('p');
+    let divcomment = document.createElement('div'); 
+    divcomment.setAttribute("id", `${contents.id}_comment`);
+    let divC = document.createElement('div');
+    comment.innerHTML = "comment";
+    comment.id = ( `${contents.id}_commentC`);
+    divC.appendChild(comment);
+    let commentsContainer = document.createElement('div');
+    commentsContainer.setAttribute("id", `${contents.id}_comments`);
+    let comments = document.createElement('p'); 
+    comments.setAttribute("id", `${contents.id}_commentss`);
+    comments.innerHTML = "comments";
+    commentsContainer.appendChild(comments);
+
+    commentContainer.appendChild(commentsContainer);
+    commentContainer.appendChild(divcomment);
+    commentContainer.appendChild(divC);
+    
+    comment.addEventListener("mouseover", function() {
+        comment.style.cursor = "pointer";
+    });
+    comments.addEventListener("mouseover", function() {
+        comments.style.cursor = "pointer";
+        counterComment = 0;
+    });
+
+    comment.onclick = ()=> {
+        let id = contents.id;
+
+        comment.onclick = null;
+        comment_(event, id, contents);
+    }
+    comments.onclick = ()=> {
+        let id = contents.id;
+        commentsList(event, id, contents);
+    }
    
     
     post.appendChild(container);
@@ -209,6 +281,7 @@ function add_post(contents, isTop=false) {
     containerInfo.appendChild(likeContainer);
     containerInfo.appendChild(date);
     post.appendChild(containerInfo);
+    post.appendChild(commentContainer);
    
     
     if(!isTop){
@@ -363,6 +436,8 @@ function liked(event, id) {
 
 function submitPost(event){
     event.preventDefault();
+    const postButton = document.getElementById("postButton");
+    postButton.disabled = true;
     const form = document.getElementById("post-form");
 
     const formData = new FormData(form);
@@ -384,6 +459,7 @@ function submitPost(event){
             // Request was successful
             console.log('Request successful');
             add_post(data.data, true);
+            postButton.disabled = false;
         } else {
             // Request failed or response is unexpected
             console.log(data.post);
@@ -396,12 +472,19 @@ function submitPost(event){
 }
 
 
-function profile(event, content){
+function profile(event, content, isFollowClick) {
     const startP = counterP;
     const endP = startP + quantityP - 1;
     counterP = endP + 1;
     
-    contentGlobe = content || "null";
+    if (isFollowClick) {
+
+        contentGlobe = "null";
+        isFollowClick = false;
+    }
+    else{
+        contentGlobe = content || "null";
+    }
     console.log(`${contentGlobe} contentG and ${content}`);
     
     fetch(`/profile?startP=${startP}&endP=${endP}&user=${contentGlobe}`)
@@ -417,6 +500,7 @@ function profile(event, content){
                 window.scrollTo(0, 0);
             }
             isLoading = true;
+            alert(`${(data.posts)} posts ${data.posts.posts} post`);
             for (let post of data.posts.posts){
                 // Pass each post object to profileStats and add_post functions
                 // console.log(post);
@@ -435,7 +519,7 @@ function profile(event, content){
 
 function profileStats(data) {
 
-    if (contentGlobe === undefined) {
+    if (contentGlobe === "null") {
         contenGlobe = data.userProfile;
     }
     index = document.getElementById("index-div");
@@ -558,6 +642,274 @@ function profileStats(data) {
         console.error('Error:', error);
     });
 }
+
+function comment_(event, id , contents){
+    event.preventDefault();
+    const commentContainer = document.getElementById(`${contents.id}_comment`);
+    commentBox = document.createElement("textarea");
+    commentBox.setAttribute('autofocus', 'true');
+    commentBox.setAttribute("class", "form-control");
+    commentBox.setAttribute("id", `${contents.id}_commentBox`);
+    let comment_button = document.createElement('button');
+    comment_button.innerHTML = "Comment";
+    comment_button.setAttribute("id", `${contents.id}_button`);
+    comment_button.setAttribute("class", "btn btn-primary");
+    commentContainer.prepend(comment_button);
+    commentContainer.prepend(commentBox);
+    comment_button.addEventListener("mouseover", function() {
+        comment_button.style.cursor = "pointer";
+    });
+    comment_button.disabled = true;
+
+    commentBox.onkeyup = (event) => {
+        comment_button.disabled = false;
+        comment_button.onclick = (e) => {
+            e.preventDefault();
+            commentContent = event.target.value;
+            fetch('comment',{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken') // Function to retrieve CSRF token from cookie
+                },
+                body: JSON.stringify({
+                    'id': id,
+                    'comment': commentContent
+                })
+            }).then((response) => {
+                if (response.ok){
+                    commentContainer.innerHTML = "";
+                    commentsList(event, id, contents);
+                    let commentClick = document.getElementById(`${contents.id}_commentC`);
+                    commentClick.onclick = () => {
+                        let id = contents.id;
+                        comment_(event, id, contents);
+                        commentClick.onclick = null;
+                    };
+
+            }})
+            .catch(error => {
+                    console.error('Error:', error);
+                });
+
+    }
+
+
+
+}
+}
+function commentsList(event, id, content) {
+    if (!paginationState[content.id]) {
+        paginationState[content.id] = {
+            start: 0,
+            end: quantityComment - 1,
+        
+        };
+    }
+
+    // Extract pagination state for this comment view
+    const { start, end } = paginationState[content.id];
+
+    fetch(`/comments?id=${id}&start=${start}&end=${end}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then((data) => {
+        console.log(data.comments);
+        // Check if data.posts is an array
+        if (Array.isArray(data.comments)&& (data.comments).length > 0) {
+            // If it's an array, iterate over each post'
+            let info = document.getElementById(`${content.id}_commentss`);
+            info.innerHTML = "";
+            
+            for (let comment of data.comments){
+                // Pass each post object to profileStats and add_post functions
+                add_comment(comment,content);
+            }
+            let more = document.getElementById(`${content.id}_more`);
+            if (more === null){
+                more = document.createElement("p")
+                more.innerHTML = "more comments...";
+                more.setAttribute("id", `${content.id}_more`);
+                document.getElementById(`${content.id}_comments`).appendChild(more);
+
+            }
+            
+            more.addEventListener("mouseover", function() {
+                more.style.cursor = "pointer";
+            });
+
+            more.onclick = function(event) {
+                //update pagination
+                paginationState[content.id].start = end + 1;
+                paginationState[content.id].end = end + quantityComment;
+
+                commentsList(event, id, content);
+            };
+            
+
+        } else  if (paginationState[content.id].start === 0){
+            // If no comments found
+            let info = document.getElementById(`${content.id}_comments`);
+            info.innerHTML = "";
+            let post = document.createElement('p');
+            post.innerHTML = "0 comments found";
+            info.appendChild(post);
+        }
+        else {
+            let more = document.getElementById(`${content.id}_more`);
+            more.innerHTML = "No more comments"; 
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+
+function add_comment(comment,content) {
+    let divComment = document.createElement("div")
+    divComment.className =  "comment-div"
+    divComment.setAttribute("id", `${comment.id}_comment`)
+    let commenter = document.createElement("p")
+    commenter.setAttribute("id", `${comment.id}_commenter`);
+    commenter.class = "commenter";
+    let comment_text = document.createElement("p")
+    let edit_button = document.createElement('button');
+    edit_button.innerHTML = "Edit";
+    edit_button.className = "btn btn-secondary"
+    let delete_button = document.createElement('button');
+    delete_button.innerHTML = "Delete";
+    delete_button.className = "btn btn-danger"
+    comment_text.innerHTML = `${comment.comment}`
+    commenter.innerHTML = `${comment.commenter}`
+    divComment.appendChild(commenter);
+    divComment.appendChild(comment_text);
+    divComment.appendChild(edit_button);
+    divComment.appendChild(delete_button);
+    document.getElementById(`${content.id}_comments`).prepend(divComment);
+
+    edit_button.addEventListener("mouseover", function() {
+        edit_button.style.cursor = "pointer";
+    });
+    delete_button.addEventListener("mouseover", function() {
+        delete_button.style.cursor = "pointer";
+    });
+    edit_button.onclick = function(event) {
+        editComment(event, comment, content);
+    };
+    delete_button.onclick = function(event) {
+        deleteComment(event, comment,content);
+    };
+}
+
+function editComment(event, comment,content) {
+    event.preventDefault();
+    let divComment = document.getElementById(`${comment.id}_comment`);
+    divComment.innerHTML = "";
+    let commenter = document.createElement("p");
+    commenter.setAttribute("class", "commenter");
+    commenter.innerHTML = comment.commenter;
+    let comment_text = document.createElement("textarea");
+    comment_text.id = (`${comment.id}_commentBox`);
+    comment_text.value = comment.comment;
+    comment_text.setAttribute("class", "form-control");
+    let edit_button = document.createElement("button");
+    edit_button.id = `${comment.id}_button`;
+    edit_button.innerHTML = "Edit comment";
+    edit_button.className = "btn btn-primary";
+
+
+    divComment.appendChild(commenter);
+    divComment.appendChild(comment_text);
+    divComment.appendChild(edit_button);
+
+    edit_button.addEventListener("mouseover", function() {
+        edit_button.style.cursor = "pointer";
+    });
+    edit_button.disabled = true;
+    comment_text.onkeyup = (event) => {
+        edit_button.disabled = false;
+        edit_button.onclick = (e) => {
+            commentContent = event.target.value;
+            fetch('editComment',{
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken') // Function to retrieve CSRF token from cookie
+                },
+                body: JSON.stringify({
+                    'id': content.id,
+                    'comment': commentContent
+                })
+            }).then((response) => {
+                if (response.ok){
+                    divComment.innerHTML = "";
+                    let comment_text = document.createElement("p")
+                    comment_text.innerHTML = commentContent ;
+                    divComment.appendChild(comment_text)
+
+                    let edit_button = document.createElement('button');
+                    edit_button.innerHTML = "Edit";
+                    edit_button.className = "btn btn-secondary"
+                    let delete_button = document.createElement('button');
+                    delete_button.innerHTML = "Delete";
+                    delete_button.className = "btn btn-danger"
+
+                    divComment.appendChild(edit_button)
+                    divComment.appendChild(delete_button)
+
+                    edit_button.addEventListener("mouseover", function() {
+                    edit_button.style.cursor = "pointer";
+                });
+                delete_button.addEventListener("mouseover", function() {
+                    delete_button.style.cursor = "pointer";
+                });
+                edit_button.onclick = function(event) {
+                    editComment(event, comment);
+                };
+                delete_button.onclick = function(event) {
+                    deleteComment(event, comment);
+                };
+
+
+            }})
+            .catch(error => {
+                    console.error('Error:', error);
+                });
+
+    }
+
+
+
+}
+    
+}
+
+function deleteComment(event, comment, content) {
+    event.preventDefault();
+    let delete_button = document.getElementById(`${content.id}_delete_button`);
+    fetch('delete',{
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken') // Function to retrieve CSRF token from cookie
+        },
+        body: JSON.stringify({
+            'id': comment.id
+        })
+    }).then((response) => {
+        if (response.ok){
+            document.getElementById(`${comment.id}_comment`).remove();
+        }})
+        .catch(error => {
+                console.error('Error:', error);
+            });
+}
+
 
  
 

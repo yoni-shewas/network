@@ -1,0 +1,19 @@
+{% block body %}
+    {% if user.is_authenticated %}
+    <div class="profile-body">
+        <div class="profile-stats">
+            <h1>{{userprofile}}</h1>
+            <div class="follow-stat">
+                <h3>Followers</h3>
+                <p>{{followers}}</p>
+            </div>
+            <div class="follow-stat">
+                <h3>Following</h3>
+                <p>{{following}}</p>
+        </div>
+       
+        
+     
+    </div>
+    {% endif %}
+{% endblock %}

@@ -1,16 +1,5 @@
-asgiref==3.8.1
-attrs==20.3.0
-bleach==6.1.0
-certifi==2024.2.2
-charset-normalizer==3.3.2
-click==8.1.7
 dj-database-url==2.1.0
 Django==5.0.3
-django-cors-headers==4.3.1
-django-crispy-forms==2.1
-django-debug-toolbar==4.3.0
-django-markdownify==0.9.3
-django-widget-tweaks==1.5.0
 gunicorn==21.2.0
 idna==3.6
 jellyfish==0.11.2
@@ -23,8 +12,6 @@ packaging==24.0
 pexpect==4.9.0
 pillow==10.2.0
 psycopg==3.1.18
-ptyprocess==0.7.0
-PyPDF2==3.0.1
 pypi==2.1
 python-dotenv==1.0.1
 requests==2.31.0
@@ -36,9 +23,8 @@ translate==3.6.1
 typing_extensions==4.10.0
 urllib3==2.2.1
 webencodings==0.5.1
-gunicorn==21.2.0
 dj-database-url==2.1.0
 psycopg==3.1.18
-psycopg2
+
 
 

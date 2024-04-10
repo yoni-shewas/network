@@ -27,7 +27,10 @@ class Comment(models.Model):
         Post, on_delete=models.CASCADE, related_name="comments")
     commenter = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="comments")
-    pass
+    date = models.DateTimeField(default=timezone.now)
+
+    def formatted_dateListed(self):
+        return self.date.strftime('%B %d, %Y %I:%M %p')
 
 
 class Follower(models.Model):
@@ -53,3 +56,7 @@ class Like(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="likes")
     liked = models.BooleanField(default=False)
+
+    class Meta:
+        # Ensure uniqueness of  post-user pair
+        unique_together = ('post', 'user')
