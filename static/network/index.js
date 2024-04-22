@@ -767,12 +767,8 @@ function commentsList(event, id, content) {
 
                 commentsList(event, id, content);
             };
-            
         }
-
-        more.addEventListener("mouseover", function() {
-            more.style.cursor = "pointer";
-        });
+        
     })
     .catch(error => {
         console.error('Error:', error);
