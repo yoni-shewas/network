@@ -87,3 +87,33 @@ form{
     margin-top: 1em;
     margin-bottom: 1em;
 }
+
+.commenter{
+    color: #3e62e4;
+    font-weight: bold;
+}
+
+.comment-divs{
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.btn {
+    padding: 5px 10px;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+    border: none;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+}

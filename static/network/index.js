@@ -230,6 +230,10 @@ function add_post(contents, isTop=false) {
     let comment = document.createElement('p');
     let divcomment = document.createElement('div'); 
     divcomment.setAttribute("id", `${contents.id}_comment`);
+
+    let divMcomment = document.createElement('div'); 
+    divcomment.setAttribute("id", `${contents.id}_Mcomment`);
+
     let divC = document.createElement('div');
     comment.innerHTML = "comment";
     comment.id = ( `${contents.id}_commentC`);
@@ -242,6 +246,7 @@ function add_post(contents, isTop=false) {
     commentsContainer.appendChild(comments);
 
     commentContainer.appendChild(commentsContainer);
+    commentContainer.appendChild(divMcomment);
     commentContainer.appendChild(divcomment);
     commentContainer.appendChild(divC);
     
@@ -645,7 +650,7 @@ function profileStats(data) {
 
 function comment_(event, id , contents){
     event.preventDefault();
-    const commentContainer = document.getElementById(`${contents.id}_comment`);
+    const commentContainer = document.getElementById(`${contents.id}_Mcomment`);
     commentBox = document.createElement("textarea");
     commentBox.setAttribute('autofocus', 'true');
     commentBox.setAttribute("class", "form-control");
@@ -777,25 +782,25 @@ function commentsList(event, id, content) {
 
 
 function add_comment(comment,content) {
-    let divComment = document.createElement("div")
-    divComment.className =  "comment-div"
-    divComment.setAttribute("id", `${comment.id}_comment`)
-    let commenter = document.createElement("p")
+    let divComment = document.createElement("div");
+    divComment.className =  "comment-divs";
+    divComment.setAttribute("id", `${comment.id}_comment`);
+    let commenter = document.createElement("p");
     commenter.setAttribute("id", `${comment.id}_commenter`);
-    commenter.class = "commenter";
-    let comment_text = document.createElement("p")
-    
-    comment_text.innerHTML = `${comment.comment}`
-    commenter.innerHTML = `${comment.commenter}`
+    commenter.className = "commenter";
+    let comment_text = document.createElement("p");
+    comment_text.innerHTML = `${comment.comment}`;
+    commenter.innerHTML = `@${comment.commenter}`;
     divComment.appendChild(commenter);
     divComment.appendChild(comment_text);
-    if(comment.commenter === comment.user) {
+    
+    if (comment.commenter === comment.user) {
         let edit_button = document.createElement('button');
         edit_button.innerHTML = "Edit";
-        edit_button.className = "btn btn-secondary"
+        edit_button.className = "btn btn-secondary";
         let delete_button = document.createElement('button');
         delete_button.innerHTML = "Delete";
-        delete_button.className = "btn btn-danger"
+        delete_button.className = "btn btn-danger";
         divComment.appendChild(edit_button);
         divComment.appendChild(delete_button);
         edit_button.addEventListener("mouseover", function() {
@@ -808,10 +813,12 @@ function add_comment(comment,content) {
             editComment(event, comment, content);
         };
         delete_button.onclick = function(event) {
-            deleteComment(event, comment,content);
+            deleteComment(event, comment, content);
         };
-        
     }
+    
+    // Append the divComment to your desired container or element
+    
     document.getElementById(`${content.id}_comments`).prepend(divComment);
     
 }

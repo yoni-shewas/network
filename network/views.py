@@ -492,7 +492,7 @@ def comment(request):
                     "post_id": comment.post.id,
                     "comment": comment.comment,
                     "commenter": str(comment.commenter.username),
-                    "date": comment.formatted_dateListed(),
+                    # "date": comment.formatted_dateListed(),
                     "user": str(request.user.username)
                 }
                 for comment in comments
