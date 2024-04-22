@@ -35,7 +35,7 @@ STATICFILES_FINDERS = [
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -71,7 +71,7 @@ ROOT_URLCONF = 'project4.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -142,12 +142,16 @@ STATIC_URL = '/static/'
 #     'http://127.0.0.1:8000/',  # Example: Your React app's URL
 # ]
 
+
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 
-# STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
-
-
-# DATABASES = {
-#     "default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
-# }
+DATABASES = {
+    "default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
+}

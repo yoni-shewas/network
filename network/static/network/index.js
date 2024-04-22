@@ -300,7 +300,7 @@ function Edit(event, id, content){
         let container = document.getElementById(contain);
         console.log(container);
         container.innerHTML = " ";
-        // alert(container)
+        // console.log(container)
         let edited_content = document.createElement('textarea');
         edited_content.setAttribute("class", "form-control");
         edited_content.setAttribute("id", `${id}_content`);
@@ -500,7 +500,7 @@ function profile(event, content, isFollowClick) {
                 window.scrollTo(0, 0);
             }
             isLoading = true;
-            alert(`${(data.posts)} posts ${data.posts.posts} post`);
+            // console.log(`${(data.posts)} posts ${data.posts.posts} post`);
             for (let post of data.posts.posts){
                 // Pass each post object to profileStats and add_post functions
                 // console.log(post);
@@ -722,7 +722,7 @@ function commentsList(event, id, content) {
         // Check if data.posts is an array
         if (Array.isArray(data.comments)&& (data.comments).length > 0) {
             // If it's an array, iterate over each post'
-            let info = document.getElementById(`${content.id}_commentss`);
+            let info = document.getElementById(`${content.id}_comments`);
             info.innerHTML = "";
             
             for (let comment of data.comments){
@@ -738,9 +738,6 @@ function commentsList(event, id, content) {
 
             }
             
-            more.addEventListener("mouseover", function() {
-                more.style.cursor = "pointer";
-            });
 
             more.onclick = function(event) {
                 //update pagination
@@ -762,7 +759,16 @@ function commentsList(event, id, content) {
         else {
             let more = document.getElementById(`${content.id}_more`);
             more.innerHTML = "No more comments"; 
+
+            more.onclick = function(event) {
+                //update pagination
+                paginationState[content.id].start = end + 1;
+                paginationState[content.id].end = end + quantityComment;
+
+                commentsList(event, id, content);
+            };
         }
+        
     })
     .catch(error => {
         console.error('Error:', error);
@@ -778,32 +784,36 @@ function add_comment(comment,content) {
     commenter.setAttribute("id", `${comment.id}_commenter`);
     commenter.class = "commenter";
     let comment_text = document.createElement("p")
-    let edit_button = document.createElement('button');
-    edit_button.innerHTML = "Edit";
-    edit_button.className = "btn btn-secondary"
-    let delete_button = document.createElement('button');
-    delete_button.innerHTML = "Delete";
-    delete_button.className = "btn btn-danger"
+    
     comment_text.innerHTML = `${comment.comment}`
     commenter.innerHTML = `${comment.commenter}`
     divComment.appendChild(commenter);
     divComment.appendChild(comment_text);
-    divComment.appendChild(edit_button);
-    divComment.appendChild(delete_button);
+    if(comment.commenter === comment.user) {
+        let edit_button = document.createElement('button');
+        edit_button.innerHTML = "Edit";
+        edit_button.className = "btn btn-secondary"
+        let delete_button = document.createElement('button');
+        delete_button.innerHTML = "Delete";
+        delete_button.className = "btn btn-danger"
+        divComment.appendChild(edit_button);
+        divComment.appendChild(delete_button);
+        edit_button.addEventListener("mouseover", function() {
+            edit_button.style.cursor = "pointer";
+        });
+        delete_button.addEventListener("mouseover", function() {
+            delete_button.style.cursor = "pointer";
+        });
+        edit_button.onclick = function(event) {
+            editComment(event, comment, content);
+        };
+        delete_button.onclick = function(event) {
+            deleteComment(event, comment,content);
+        };
+        
+    }
     document.getElementById(`${content.id}_comments`).prepend(divComment);
-
-    edit_button.addEventListener("mouseover", function() {
-        edit_button.style.cursor = "pointer";
-    });
-    delete_button.addEventListener("mouseover", function() {
-        delete_button.style.cursor = "pointer";
-    });
-    edit_button.onclick = function(event) {
-        editComment(event, comment, content);
-    };
-    delete_button.onclick = function(event) {
-        deleteComment(event, comment,content);
-    };
+    
 }
 
 function editComment(event, comment,content) {

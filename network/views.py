@@ -491,8 +491,9 @@ def comment(request):
                     "id": comment.id,
                     "post_id": comment.post.id,
                     "comment": comment.comment,
-                    "commenter": comment.commenter.username,
+                    "commenter": str(comment.commenter.username),
                     "date": comment.formatted_dateListed(),
+                    "user": str(request.user.username)
                 }
                 for comment in comments
             ],
@@ -526,3 +527,7 @@ def comment(request):
 
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
+
+
+def error_404(request, exception):
+    return render(request, '404.html', status=404)
