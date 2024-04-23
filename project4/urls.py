@@ -18,12 +18,11 @@ from django.urls import include, path
 from django.conf.urls.static import static
 from django.conf import settings
 
-from django.conf.urls import url
 from django.views.generic import TemplateView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("network.urls")),
-    url(r'^google.*\.html$',
-        TemplateView.as_view(template_name='google2cc3d2906727129c.html')),
+    path("google2cc3d2906727129c.html", TemplateView.as_view(
+        template_name='google2cc3d2906727129c.html')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
