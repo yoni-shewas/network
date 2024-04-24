@@ -130,6 +130,18 @@ def post_view(request):
             return JsonResponse({
                 "data": data
             })
+    elif request.method == 'DELETE':
+        data = json.loads(request.body)
+        post = data.get("id")
+
+        if not id:
+            return JsonResponse({'error': 'No post provided'}, status=400)
+        else:
+            post = Post.objects.get(id=post)
+            post.delete()
+            return JsonResponse({
+                "data": post.id
+            })
     else:
         return JsonResponse({'error': 'No post provided'}, status=400)
 

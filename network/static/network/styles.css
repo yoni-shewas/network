@@ -10,15 +10,20 @@ body{
     margin-top: 2em;
     margin-bottom: 2em;
     padding: 1em;
-    border: 1px solid rgb(172, 170, 170);
+    padding-left: 2em;
+    border: none;
     border-radius: 1em;
     display: flex;
     flex-direction: column;
     gap: 1em;
     min-width: 31em;
-    align-items: start;
+    align-items:baseline;
+    justify-content: space-around;
+    box-shadow: 0 0.2em 0.4em rgba(184, 182, 182, 0.2);
     /* min-width: 25em; */
 }
+
+
 .navbar{
     border: 0;
     border-bottom: 1px solid rgb(195, 191, 191);
@@ -116,4 +121,11 @@ form{
     background-color: #dc3545;
     color: #fff;
     border: none;
+}
+
+
+.interaction-div{
+    display: flex;
+    width: 100%;
+    gap: 3em;
 }

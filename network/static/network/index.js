@@ -16,7 +16,7 @@ isLoading = false;
 
 const paginationState = {};
 
-let contenGlobe = "null";
+let contentGlobe = "null";
 
 // When DOM loads, render the first 20 posts
 document.addEventListener('DOMContentLoaded', () => {
@@ -118,6 +118,8 @@ function add_post(contents, isTop=false) {
     // Create new post
     const post = document.createElement('div');
     post.className = "post";
+    post.id = `${contents.id}_post`;
+
     
     let poster = document.createElement('h4');
     poster.innerHTML = `@${contents.poster}`;
@@ -143,7 +145,7 @@ function add_post(contents, isTop=false) {
     container.setAttribute('id',containerID);
     let posted = document.createElement('h5');
     posted.innerHTML = contents.post;
-    posted.setAttribute=('id', `${contents.id}_content`);
+    posted.setAttribute('id', `${contents.id}_content`);
     container.appendChild(posted);
 
    
@@ -193,6 +195,8 @@ function add_post(contents, isTop=false) {
         liked(event, id);
     };
 
+
+
     if(contents.liked){
         path1.setAttribute('fill', "#2c29e2" )
         path2.setAttribute('fill', "#00BFFF" )
@@ -204,9 +208,78 @@ function add_post(contents, isTop=false) {
     like.setAttribute("id", likeId );
 
     
-    post.appendChild(poster);
 
-    if (contents.viewer === contents.poster_id) {
+
+
+    
+    post.appendChild(poster);
+    let creator = (contents.viewer === contents.poster_id)
+
+    if (creator) {
+
+        var svgDelete = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svgDelete.setAttribute("width", "25px");
+        svgDelete.setAttribute("height", "25px");
+        svgDelete.setAttribute("viewBox", "0 0 24 24");
+        svgDelete.setAttribute("fill", "none");
+        svgDelete.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        svgDelete.classList.add("svg-container");
+        svgDelete.classList.add("svg-fill"); // Added classList.add to avoid overwriting existing class
+
+        // Create path elements for the fire emoji
+        var dpath1 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        dpath1.setAttribute("opacity", "0.5");
+        dpath1.setAttribute("d", "M10 12V17");
+        dpath1.setAttribute('stroke', "red");
+        dpath1.id = `${contents.id}_delete1`;
+        dpath1.classList.add("path1");
+        dpath1.classList.add("path-danger"); // Added class for danger color
+
+        var dpath2 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        dpath2.setAttribute("opacity", "0.5");
+        dpath2.setAttribute("d", "M14 12V17");
+        dpath2.setAttribute('stroke', "red");
+        dpath2.id = `${contents.id}_delete2`;
+        dpath2.classList.add("path2");
+        dpath2.classList.add("path-danger"); // Added class for danger color
+
+        var dpath3 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        dpath3.setAttribute("opacity", "0.5");
+        dpath3.setAttribute("d", "M4 7H20");
+        dpath3.setAttribute('stroke', "red");
+        dpath3.id = `${contents.id}_delete3`;
+        dpath3.classList.add("path3");
+        dpath3.classList.add("path-danger"); // Added class for danger color
+
+        var dpath4 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        dpath4.setAttribute("opacity", "0.5");
+        dpath4.setAttribute("d", "M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10");
+        dpath4.setAttribute('stroke', "red");
+        dpath4.id = `${contents.id}_delete4`;
+        dpath4.classList.add("path4");
+        dpath4.classList.add("path-danger"); // Added class for danger color
+
+        var dpath5 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        dpath5.setAttribute("opacity", "0.5");
+        dpath5.setAttribute("d", "M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z");
+        dpath5.setAttribute('stroke', "red");
+        dpath5.id = `${contents.id}_delete5`;
+        dpath5.classList.add("path5");
+        dpath5.classList.add("path-danger"); // Added class for danger color
+
+
+        svgDelete.appendChild(dpath1);
+        svgDelete.appendChild(dpath2);
+        svgDelete.appendChild(dpath3);
+        svgDelete.appendChild(dpath4);
+        svgDelete.appendChild(dpath5);
+
+
+        svgDelete.onclick = function() {
+            id = contents.id;
+            deleted(event, id);
+        };
+    
         let edit = document.createElement('a');
         edit.innerHTML = 'Edit';
         edit.setAttribute("id", `${contents.id}_edit`);        
@@ -281,9 +354,15 @@ function add_post(contents, isTop=false) {
     likeContainer.setAttribute('class', 'like-div');
     likeContainer.appendChild(svg);
     likeContainer.appendChild(like);
+    let interactionContainer = document.createElement('div');
+    interactionContainer.setAttribute('class', 'interaction-div');
+    interactionContainer.appendChild(likeContainer);
+    if (creator){
+        interactionContainer.appendChild(svgDelete);
+    }
     let containerInfo = document.createElement('div');
     containerInfo.setAttribute('class', 'container-info');
-    containerInfo.appendChild(likeContainer);
+    containerInfo.appendChild(interactionContainer);
     containerInfo.appendChild(date);
     post.appendChild(containerInfo);
     post.appendChild(commentContainer);
@@ -303,7 +382,7 @@ function Edit(event, id, content){
     
     try{
         let container = document.getElementById(contain);
-        console.log(container);
+        let post = document.getElementById(`${content.id}_content`);
         container.innerHTML = " ";
         // console.log(container)
         let edited_content = document.createElement('textarea');
@@ -312,7 +391,7 @@ function Edit(event, id, content){
         let edit_button = document.createElement('button');
         edit_button.setAttribute("id", `${id}_edit`);
         edit_button.setAttribute("class", "btn btn-primary");
-        edited_content.value = content.post;
+        edited_content.value = post.innerHTML;
 
         edit_button.innerHTML = "Edit";
         container.appendChild(edited_content);
@@ -343,7 +422,8 @@ function Edit(event, id, content){
                     container.innerHTML = " ";
                     contentID = `${content.id}_content`
                     
-                    let edited_content = document.createElement('h3');
+                    let edited_content = document.createElement('h5');
+                    edited_content.setAttribute("id", `${id}_content`);
                     edited_content.innerHTML = post_content;
                     container.appendChild(edited_content);
 
@@ -371,6 +451,27 @@ function Edit(event, id, content){
         
     
 
+
+}
+
+function deleted(event, id) {
+
+    fetch(`post/delete`,{
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken') // Function to retrieve CSRF token from cookie
+        },
+        body: JSON.stringify({
+            'id': id
+        })
+    }).then((response) => {
+        if (response.ok){
+            document.getElementById(`${id}_post`).remove();
+        }})
+        .catch(error => {
+                console.error('Error:', error);
+            });
 
 }
 
@@ -525,7 +626,7 @@ function profile(event, content, isFollowClick) {
 function profileStats(data) {
 
     if (contentGlobe === "null") {
-        contenGlobe = data.userProfile;
+        contentGlobe = data.userProfile;
     }
     index = document.getElementById("index-div");
     index.innerHTML = "";
