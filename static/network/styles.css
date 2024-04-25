@@ -6,25 +6,54 @@ body{
     color: #FFFFFF;
 }
 
-.post{
-    margin-top: 2em;
-    margin-bottom: 2em;
-    padding: 1em;
-    border: 1px solid rgb(172, 170, 170);
+.post {
+    margin-top: 1em;
+    margin-bottom: 1em;
     border-radius: 1em;
     display: flex;
     flex-direction: column;
     gap: 1em;
-    min-width: 31em;
-    align-items: start;
-    /* min-width: 25em; */
+    align-items: baseline;
+    justify-content: space-around;
+    box-shadow: 0 0.2em 0.4em rgba(184, 182, 182, 0.2);
+    padding: 1.5em;
+    /* overflow:hidden; */
+    white-space: nowrap;
+    /*text-overflow:clip;  Adjust text-overflow property */
+    /* Remove min-width and max-width properties */
+    /* min-width: 70%;
+    */
+    width: 60%; /* Allow elements to shrink and expand based on available space */
 }
+
+div.PostContainer{
+    
+    padding: .5em;
+    width: auto;
+    height: auto;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    overflow: hidden;
+}
+
+
+
+
 .navbar{
     border: 0;
     border-bottom: 1px solid rgb(195, 191, 191);
     border-radius: 1em;
     background-color: #1E1E1E;
     padding: 1em;
+    color: #1640D6;
+}
+.custom-toggler.navbar-toggler {
+    border-color:rgb(19, 64, 224);
+}
+ 
+.custom-toggler .navbar-toggler-icon {
+    background-image: url(
+"data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgb(19, 64, 224)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
 }
 
 form{
@@ -54,17 +83,39 @@ form{
     color: #1640D6;
 }
 
-.body-container{
+.body-container {
     display: flex;
     gap: 1.5em;
-    flex-wrap: wrap;
 }
 
 .b{
-    flex: 1;
-    flex-shrink: 0;
-    margin: 1em;
+    flex: 1 0 45%;
+    max-width: calc(35% - 1em); 
+    margin: 1em 0; 
 }
+
+
+.right-container{
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+#posts{
+    width: 100%;
+}
+
+*{
+    border: 1px solid red;
+}
+
+@media (max-width: 1068px) {
+    .body-container {
+        flex-direction: column; 
+        max-width: 100%; 
+    }
+}
+
 
 .btn:focus,
 .btn:active {
@@ -117,3 +168,15 @@ form{
     color: #fff;
     border: none;
 }
+
+
+.interaction-div{
+    display: flex;
+    width: 100%;
+    gap: 3em;
+}
+
+.swal2-popup {
+    background-color: #1C1C1E; /* Set your desired background color here */
+    color: #1640D6;
+  }

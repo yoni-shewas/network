@@ -6,22 +6,37 @@ body{
     color: #FFFFFF;
 }
 
-.post{
-    margin-top: 2em;
-    margin-bottom: 2em;
-    padding: 1em;
-    padding-left: 2em;
-    border: none;
+.post {
+    margin-top: 1em;
+    margin-bottom: 1em;
     border-radius: 1em;
     display: flex;
     flex-direction: column;
     gap: 1em;
-    min-width: 16em;
-    align-items:baseline;
+    align-items: baseline;
     justify-content: space-around;
     box-shadow: 0 0.2em 0.4em rgba(184, 182, 182, 0.2);
-    /* min-width: 25em; */
+    padding: 1.5em;
+    /* overflow:hidden; */
+    white-space: nowrap;
+    /*text-overflow:clip;  Adjust text-overflow property */
+    /* Remove min-width and max-width properties */
+    /* min-width: 70%;
+    */
+    width: 60%; /* Allow elements to shrink and expand based on available space */
 }
+
+div.PostContainer{
+    
+    padding: .5em;
+    width: auto;
+    height: auto;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    overflow: hidden;
+}
+
+
 
 
 .navbar{
@@ -70,23 +85,37 @@ form{
 
 .body-container {
     display: flex;
-    justify-content: space-between; 
     gap: 1.5em;
-    flex-wrap: wrap;
 }
 
-.b {
-    flex: 1 0 45%; 
-    max-width: calc(50% - 1.5em); 
+.b{
+    flex: 1 0 45%;
+    max-width: calc(35% - 1em); 
     margin: 1em 0; 
 }
 
-@media (max-width: 768px) {
-    .b {
-        flex-basis: 100%; 
+
+.right-container{
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+#posts{
+    width: 100%;
+}
+
+*{
+    border: 1px solid red;
+}
+
+@media (max-width: 1068px) {
+    .body-container {
+        flex-direction: column; 
         max-width: 100%; 
     }
 }
+
 
 .btn:focus,
 .btn:active {

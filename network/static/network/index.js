@@ -139,14 +139,14 @@ function add_post(contents, isTop=false) {
    
     let container = document.createElement('div');
     containerID =  `${contents.id}_container`;
-    let info = document.createElement('div');
-    info.id = `${contents.id}_info`;
-    container.appendChild(info);
+    container.className = "PostContainer text-wrap text-break"
+    container.innerHTML = contents.post;
+
     container.setAttribute('id',containerID);
-    let posted = document.createElement('h5');
-    posted.innerHTML = contents.post;
-    posted.setAttribute('id', `${contents.id}_content`);
-    container.appendChild(posted);
+    // let posted = document.createElement('h5');
+    // posted.innerHTML = contents.post;
+    // posted.setAttribute('class', "text-wrap");
+    // container.appendChild(posted);
 
    
     
@@ -278,7 +278,7 @@ function add_post(contents, isTop=false) {
         svgDelete.onclick = function() {
             id = contents.id;
             Swal.fire({
-                title: 'Are you sure to delete the post?',
+                title: 'Are you sure to delete?',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
@@ -286,10 +286,6 @@ function add_post(contents, isTop=false) {
               }).then((result) => {
                 if (result.isConfirmed) {
                 deleted(event, id);
-                  Swal.fire(
-                    'Deleted!',
-                    'Your Post has been deleted.',
-                  );
                 }
               });
             

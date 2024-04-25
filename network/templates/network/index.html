@@ -8,7 +8,7 @@
             <div class="col-md-4 b" id="index-div">
                 <form id="post-form" onsubmit="submitPost(event)">
                     <label for="new-post">New Post</label>
-                    <input type="text" class="form-control" id="post" name="post" required="true">
+                    <input type="text" class="form-control" id="post" name="post" maxlength="200" required="true">
                     <button class="btn btn-primary post-btn" id="postButton"  type="submit">Post</button>
                 </form>
             
@@ -16,7 +16,7 @@
         
             <div class="right-container">
                 <h2 id="poster-h2">All posts</h2>
-                <div class="col-md-5 b" id="posts">
+                <div id="posts">
                     
                 </div>
             </div>
