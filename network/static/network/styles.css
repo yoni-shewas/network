@@ -16,7 +16,7 @@ body{
     display: flex;
     flex-direction: column;
     gap: 1em;
-    min-width: 31em;
+    min-width: 16em;
     align-items:baseline;
     justify-content: space-around;
     box-shadow: 0 0.2em 0.4em rgba(184, 182, 182, 0.2);
@@ -30,6 +30,15 @@ body{
     border-radius: 1em;
     background-color: #1E1E1E;
     padding: 1em;
+    color: #1640D6;
+}
+.custom-toggler.navbar-toggler {
+    border-color:rgb(19, 64, 224);
+}
+ 
+.custom-toggler .navbar-toggler-icon {
+    background-image: url(
+"data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgb(19, 64, 224)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
 }
 
 form{
@@ -59,16 +68,24 @@ form{
     color: #1640D6;
 }
 
-.body-container{
+.body-container {
     display: flex;
+    justify-content: space-between; 
     gap: 1.5em;
     flex-wrap: wrap;
 }
 
-.b{
-    flex: 1;
-    flex-shrink: 0;
-    margin: 1em;
+.b {
+    flex: 1 0 45%; 
+    max-width: calc(50% - 1.5em); 
+    margin: 1em 0; 
+}
+
+@media (max-width: 768px) {
+    .b {
+        flex-basis: 100%; 
+        max-width: 100%; 
+    }
 }
 
 .btn:focus,
@@ -129,3 +146,8 @@ form{
     width: 100%;
     gap: 3em;
 }
+
+.swal2-popup {
+    background-color: #1C1C1E; /* Set your desired background color here */
+    color: #1640D6;
+  }

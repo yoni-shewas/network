@@ -277,7 +277,22 @@ function add_post(contents, isTop=false) {
 
         svgDelete.onclick = function() {
             id = contents.id;
-            deleted(event, id);
+            Swal.fire({
+                title: 'Are you sure to delete the post?',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+              }).then((result) => {
+                if (result.isConfirmed) {
+                deleted(event, id);
+                  Swal.fire(
+                    'Deleted!',
+                    'Your Post has been deleted.',
+                  );
+                }
+              });
+            
         };
     
         let edit = document.createElement('a');
@@ -376,6 +391,9 @@ function add_post(contents, isTop=false) {
         document.querySelector('#posts').prepend(post);
     }
 };
+
+
+  
 
 function Edit(event, id, content){
     let contain = `${id}_container`;
