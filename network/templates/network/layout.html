@@ -1,4 +1,4 @@
- {% load static %}
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -15,13 +15,13 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-sm">
+<nav class="navbar navbar-expand-lg p-3">
     <a class="navbar-brand" href="#">Network</a>
     <button class="navbar-toggler custom-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse flex-column" id="navbarSupportedContent">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav ml-auto">
             {% if user.is_authenticated %}
             <li class="nav-item">
@@ -50,9 +50,7 @@
     </div>
 </nav>
 
-
-
-<div class="container-fluid">
+<div class="container">
     <div class="body">
         {% block body %}
         {% endblock %}
