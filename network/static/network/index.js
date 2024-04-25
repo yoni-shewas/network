@@ -383,7 +383,9 @@ function Edit(event, id, content){
     try{
         let container = document.getElementById(contain);
         let post = document.getElementById(`${content.id}_content`);
-        container.innerHTML = " ";
+        while (container.firstChild) {
+            container.firstChild.remove();
+        }
         // console.log(container)
         let edited_content = document.createElement('textarea');
         edited_content.setAttribute("class", "form-control");
@@ -419,7 +421,9 @@ function Edit(event, id, content){
             }).then(response => {
                 // Check if the update was successful
                 if (response.ok) {
-                    container.innerHTML = " ";
+                    while (container.firstChild) {
+                        container.firstChild.remove();
+                    }
                     contentID = `${content.id}_content`
                     
                     let edited_content = document.createElement('h5');
