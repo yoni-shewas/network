@@ -4,11 +4,13 @@
 body{
     background-color: #1C1C1E;
     color: #FFFFFF;
+    margin: 0%;
+    padding: 0%;
 }
 
 .post {
     margin-top: 1em;
-    margin-bottom: 1em;
+    margin-bottom: 2.5em;
     border-radius: 1em;
     display: flex;
     flex-direction: column;
@@ -23,7 +25,11 @@ body{
     /* Remove min-width and max-width properties */
     /* min-width: 70%;
     */
-    width: 60%; /* Allow elements to shrink and expand based on available space */
+    width: 100%; /* Allow elements to shrink and expand based on available space */
+}
+
+input[type="text"] {
+    width: auto;
 }
 
 div.PostContainer{
@@ -42,7 +48,8 @@ div.PostContainer{
 .navbar{
     border: 0;
     border-bottom: 1px solid rgb(195, 191, 191);
-    border-radius: 1em;
+    border-bottom-left-radius: 1em;
+    border-bottom-right-radius: 1em;
     background-color: #1E1E1E;
     padding: 1em;
     color: #1640D6;
@@ -90,7 +97,7 @@ form{
 
 .b{
     flex: 1 0 45%;
-    max-width: calc(35% - 1em); 
+    max-width: calc(30% - 1em); 
     margin: 1em 0; 
 }
 
@@ -112,6 +119,11 @@ form{
         flex-direction: column; 
         max-width: 100%; 
     }
+    .b{
+        flex: 1 0 45%;
+        max-width: calc(100% - 1em); 
+        margin: 1em 0; 
+    }
 }
 
 
@@ -123,7 +135,11 @@ form{
 
 .right-container{
     flex: 1;
-    width: 40em;
+    width: calc(90% - 1.5em);
+}
+
+form{
+    width: calc(100% - 1.5em);
 }
 
 #user-follow{
@@ -178,3 +194,4 @@ form{
     background-color: #1C1C1E; /* Set your desired background color here */
     color: #1640D6;
   }
+
