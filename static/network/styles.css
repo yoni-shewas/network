@@ -105,9 +105,7 @@ form{
     width: 100%;
 }
 
-*{
-    border: 1px solid red;
-}
+
 
 @media (max-width: 1068px) {
     .body-container {
