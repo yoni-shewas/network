@@ -14,6 +14,8 @@ const quantityP = 10;
 
 isLoading = false;
 
+var isHandlingClick = false;
+
 const paginationState = {};
 
 let contentGlobe = "null";
@@ -85,6 +87,29 @@ function load() {
     post = document.getElementById("poster-h2")
     post.innerHTML = `All posts`;
 
+
+     // Get the textarea element
+     var textarea = document.getElementById("post");
+
+     // Add event listener for input events
+     textarea.addEventListener("input", function() {
+       // Get the current word count
+       var wordCount = this.value.length;
+ 
+       // Update the word count display
+       document.getElementById("wordCount").textContent = wordCount + " / 200 Characters";
+ 
+       button = document.getElementById("postButton");
+       // If word count exceeds 200, truncate the text
+       if (wordCount > 200) {
+         document.getElementById("wordCount").textContent = "200 / 200 Characters please minimize the post";
+         button.disabled = true;
+       }
+       else{
+        button.disabled = false;
+       }
+     });
+
   
 
 
@@ -139,8 +164,14 @@ function add_post(contents, isTop=false) {
    
     let container = document.createElement('div');
     containerID =  `${contents.id}_container`;
-    container.className = "PostContainer text-wrap text-break"
-    container.innerHTML = contents.post;
+    container.className = "PostContainer text-wrap text-break";
+
+    let paragraph = document.createElement('p');
+    paragraph.className = "text-wrap text-break";
+    paragraph.textContent = contents.post;
+    paragraph.setAttribute('id', `${contents.id}_posted`);
+    // Append the <p> element to the container
+    container.appendChild(paragraph);
 
     container.setAttribute('id',containerID);
     // let posted = document.createElement('h5');
@@ -296,17 +327,22 @@ function add_post(contents, isTop=false) {
         edit.setAttribute("id", `${contents.id}_edit`);        
         edit.setAttribute("class", "text-primary");
         edit.addEventListener("mouseover", function() {
+    
             edit.style.cursor = "pointer";
+
         });
             post.appendChild(edit);
     
         // Attach onclick event handler
         edit.onclick = function() {
             let id = contents.id;
+
             // let content = contents.post; // Corrected assignment
             Edit(event, id, contents);
+            
         };
     }
+    post.appendChild(container);
     let commentContainer = document.createElement('div');
     commentContainer.setAttribute('class', 'comment-div');
     commentContainer.setAttribute('id', `comment_container`);
@@ -354,7 +390,7 @@ function add_post(contents, isTop=false) {
     }
    
     
-    post.appendChild(container);
+    
 
     if(contents.edited){
         let edited = document.createElement('a');
@@ -373,6 +409,7 @@ function add_post(contents, isTop=false) {
     }
     let containerInfo = document.createElement('div');
     containerInfo.setAttribute('class', 'container-info');
+    containerInfo.setAttribute('id', `${contents.id}_before`);
     containerInfo.appendChild(interactionContainer);
     containerInfo.appendChild(date);
     post.appendChild(containerInfo);
@@ -392,17 +429,23 @@ function add_post(contents, isTop=false) {
   
 
 function Edit(event, id, content){
+
+    event.preventDefault();
     let contain = `${id}_container`;
     
     try{
         let container = document.getElementById(contain);
-        let post = document.getElementById(`${content.id}_content`);
+        let post = document.getElementById(`${content.id}_posted`);
+        let edit = document.getElementById(`${content.id}_edit`);
+
+        edit.remove();
+      
         while (container.firstChild) {
             container.firstChild.remove();
         }
         // console.log(container)
         let edited_content = document.createElement('textarea');
-        edited_content.setAttribute("class", "form-control");
+        edited_content.setAttribute("class", "form-control commentInput");
         edited_content.setAttribute("id", `${id}_content`);
         let edit_button = document.createElement('button');
         edit_button.setAttribute("id", `${id}_edit`);
@@ -421,6 +464,7 @@ function Edit(event, id, content){
         edit_button.disabled = false;
         
         edit_button.onclick = function(e) {
+            edit_button.disabled = true;
             post_content = event.target.value
             fetch('edit',{
                 method: 'PUT',
@@ -435,15 +479,31 @@ function Edit(event, id, content){
             }).then(response => {
                 // Check if the update was successful
                 if (response.ok) {
-                    while (container.firstChild) {
-                        container.firstChild.remove();
-                    }
-                    contentID = `${content.id}_content`
+                    container.innerHTML = "";                 
+            
+                    post.innerHTML = post_content;
+                    container.append(post);
+
+                    postC = document.getElementById(`${content.id}_post`)
                     
-                    let edited_content = document.createElement('h5');
-                    edited_content.setAttribute("id", `${id}_content`);
-                    edited_content.innerHTML = post_content;
-                    container.appendChild(edited_content);
+                    let edit = document.createElement('a');
+                    edit.innerHTML = 'Edit';
+                    edit.setAttribute("id", `${content.id}_edit`);        
+                    edit.setAttribute("class", "text-primary");
+                    edit.addEventListener("mouseover", function() {
+                
+                       edit.style.cursor = "pointer";
+
+                    });
+                    
+                    postC.prepend(edit);
+
+                    edit.onclick = function() {
+                        let id = content.id;
+            
+                        Edit(event, id, content);
+                        
+                    };
 
 
                 } else {
@@ -464,10 +524,6 @@ function Edit(event, id, content){
         catch (error ) {
             console.error('Error:', error);
         }
-
-
-        
-    
 
 
 }
@@ -555,7 +611,7 @@ function liked(event, id) {
 
 
 // function deletePost(event, id) {
-//     event.preventDefault();
+//     event.preventDefault();`
 // }
 
 function submitPost(event){

@@ -5,10 +5,11 @@
     <div class="body-container" >
        
         
-            <div class="col-md-4 b" id="index-div">
+            <div class="col-md-6 b" id="index-div">
                 <form id="post-form" onsubmit="submitPost(event)">
                     <label for="new-post">New Post</label>
-                    <input type="text" class="form-control" id="post" name="post" maxlength="200" required="true">
+                    <textarea class="form-control postText" id="post" name="post" maxlength="200" rows="1" placeholder="Post something..." required="true"></textarea>
+                    <small class="form-text text-muted" id="wordCount">0 / 200 Charaters</small>
                     <button class="btn btn-primary post-btn" id="postButton"  type="submit">Post</button>
                 </form>
             
