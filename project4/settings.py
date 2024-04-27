@@ -158,6 +158,11 @@ STATICFILES_FINDERS = [
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'network', 'static'),
+]
+
+
 DATABASES = {
     "default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
 }
