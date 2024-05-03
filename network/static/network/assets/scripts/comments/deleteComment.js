@@ -14,7 +14,7 @@ export function deleteComment(event, comment, content, document) {
         })
     }).then((response) => {
         if (response.ok){
-            comment = document.getElementById(`${comment.id}_comment`);
+         let comment = document.getElementById(`${comment.id}_comment`);
 
             
             if (comment) {
