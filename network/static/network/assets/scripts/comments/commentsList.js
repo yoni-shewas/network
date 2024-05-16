@@ -22,7 +22,7 @@ export function commentsList(event, id, content,document) {
     })
     .then(response => response.json())
     .then((data) => {
-        console.log(data.comments);
+        // console.log(data.comments);
         // Check if data.posts is an array
         if (Array.isArray(data.comments)&& (data.comments).length > 0) {
             // If it's an array, iterate over each post'

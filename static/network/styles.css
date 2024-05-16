@@ -187,6 +187,7 @@ form{
 .form-control{
     margin-top: 1em;
     margin-bottom: 1em;
+    max-width: 300px;
 }
 
 .commenter{
@@ -230,4 +231,6 @@ form{
     background-color: #1C1C1E; /* Set your desired background color here */
     color: #1640D6;
   }
+
+
 

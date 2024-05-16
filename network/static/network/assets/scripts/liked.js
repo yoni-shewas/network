@@ -23,9 +23,9 @@ export function liked(event, id, document) {
         // Now you can access the data returned from the server
         if (data && data.likes !== undefined) {
             // Request was successful
-            console.log(data);
+            // console.log(data);
             if (path1) {
-                console.log(path1);
+                // console.log(path1);
                 if (data.isLiked){
                     path1.setAttribute("fill", "#2c29e2");
                     path2.setAttribute("fill", "#00BFFF");
@@ -48,7 +48,7 @@ export function liked(event, id, document) {
                 console.error('Element not found:', id);
             }
 
-            console.log('Request successful');
+            // console.log('Request successful');
         } else {
             // Request failed or response is unexpected
             console.error('Request failed or response is unexpected');

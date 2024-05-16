@@ -23,9 +23,9 @@ export function follow(event, data, document) {
         // Now you can access the data returned from the server
         if (B_data && B_data.isFollow !== undefined) {
             // Request was successful
-            console.log(B_data);
+            // console.log(B_data);
             if (path) {
-                console.log(path);
+                // console.log(path);
                 if (B_data.isFollow) {
                     path.innerHTML = "- following";
                     // Update the follow count only if it exists
@@ -40,7 +40,7 @@ export function follow(event, data, document) {
             } else {
                 console.error('Path element not found:', pathId);
             }
-            console.log('Request successful');
+            // console.log('Request successful');
         } else {
             // Request failed or response is unexpected
             console.error('Request failed or response is unexpected');

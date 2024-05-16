@@ -45,7 +45,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const followingClickHandler = (event) => {
         event.preventDefault();
-        profile(event,"null",true);
+        contentGlobe = "null";
+        profile(event, "null", true);
+        
         following.addEventListener('click', followingClickHandler);
     };
 
@@ -170,7 +172,7 @@ export function profile(event, content, isFollowClick) {
     else{
         contentGlobe = content || "null";
     }
-    console.log(`${contentGlobe} contentG and ${content}`);
+    // console.log(`${contentGlobe} contentG and ${content}`);
     
     fetch(`/profile?startP=${startP}&endP=${endP}&user=${contentGlobe}`)
     .then(response => response.json())
@@ -189,9 +191,9 @@ export function profile(event, content, isFollowClick) {
             data.posts.posts.forEach(post => {
                 // Pass each post object to profileStats and add_post functions
                 // console.log(post);
-                console.log(data.posts)
+                // console.log(data.posts)
                 profileStats(data.posts);
-                console.log(data.posts)
+                // console.log(data.posts)
                 add_post(post, document, counterComment);
             });
         } else {
@@ -307,7 +309,7 @@ function submitPost(event){
              postButton.disabled = false;
          } else {
              // Request failed or response is unexpected
-             console.log(data.post);
+            //  console.log(data.post);
              console.error('Request failed or response is unexpected');
          }
      })
