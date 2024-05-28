@@ -7,13 +7,15 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User, Post, Like, Follower, Comment
+from .models import User, Post, Like, Follower, Comment,Chat
 from django import forms
 from django.http import JsonResponse
 from django.core.serializers import serialize
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from .encrypter import encrypt_message,decrypt_message
+from django.db.models import Q
 
 
 from .models import User
@@ -539,6 +541,80 @@ def comment(request):
 
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
+    
+
+# @login_required
+def chat(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        message = data.get("message")
+        receiver_username = data.get("receiver")
+
+        if not message or not receiver_username:
+            return JsonResponse({"error": "Message and receiver are required"}, status=400)
+
+        try:
+            sender = User.objects.get(username=request.user.username)
+            receiver = User.objects.get(username=receiver_username)
+
+
+            # Encrypt the message
+            encrypted_message = encrypt_message(message)
+
+            chat = Chat.objects.create(
+                sender=sender,
+                receiver=receiver,
+                chat=encrypted_message
+            )
+            return JsonResponse({"message": "Chat created successfully"})
+        except User.DoesNotExist:
+            return JsonResponse({"error": "Sender or receiver does not exist"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    
+    elif request.method == "GET":
+        start = int(request.GET.get("start") or 0)
+        end = int(request.GET.get("end") or (start + 9))
+        receiver_username = str(request.GET.get("receiver") or None)
+        
+        if receiver_username is None:
+            return JsonResponse({"error": "Receiver is required"}, status=400)
+
+        try:
+            receiver = User.objects.get(username=receiver_username)
+            sender = User.objects.get(username=request.user.username)
+            print(f"Receiver {receiver}")
+            print(f"Receiver {sender}")
+
+
+            chats = Chat.objects.filter(Q(sender=sender, receiver=receiver) | Q(sender=receiver, receiver=sender)
+                                        ).order_by('date')[start:end + 1]
+
+            print(chats)
+            
+            chat_list = []
+            for chat in chats:
+                decrypted_message = decrypt_message(chat.chat)
+                time_only = chat.date.strftime('%H:%M:%S')
+                print(time_only)
+                chat_list.append({
+                    "sender": chat.sender.username,
+                    "receiver": chat.receiver.username,
+                    "chat": decrypted_message,
+                    "date": time_only,
+                    "edited": chat.edited
+                })
+            
+            return JsonResponse({"chats": chat_list})
+        except User.DoesNotExist:
+            return JsonResponse({"error": "Sender or receiver does not exist"}, status=404)
+        except Exception as e:
+            print(f"Error {e}")
+            return JsonResponse({"error": str(e)}, status=500)
+
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 
 def error_404(request, exception):

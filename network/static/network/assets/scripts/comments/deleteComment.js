@@ -3,6 +3,8 @@ import { getCookie } from "../cookies/getCookie";
 export function deleteComment(event, comment, content, document) {
     event.preventDefault();
     let delete_button = document.getElementById(`${content.id}_delete_button`);
+    console.log(comment);
+    // console.log(content);
     fetch('delete',{
         method: 'DELETE',
         headers: {
@@ -14,19 +16,19 @@ export function deleteComment(event, comment, content, document) {
         })
     }).then((response) => {
         if (response.ok){
-         let comment = document.getElementById(`${comment.id}_comment`);
-
+            let diVcomment = document.getElementById(`${comment.id}_comment`);
+            console.log(diVcomment);
             
-            if (comment) {
+            if (diVcomment) {
                 // Apply CSS transition for fading effect
-                comment.style.transition = "opacity 0.25s ease";
+                diVcomment.style.transition = "opacity 0.25s ease";
         
                 // Set opacity to 0 to start the fading effect
-                comment.style.opacity = 0;
+                diVcomment.style.opacity = 0;
         
                 // After a short delay, remove the post from the DOM
                 setTimeout(() => {
-                    comment.remove();
+                    diVcomment.remove();
                 }, 200); // Adjust the delay (in milliseconds) based on the transition duration
             }
         }})

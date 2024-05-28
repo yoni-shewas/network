@@ -226,8 +226,22 @@ form{
     gap: 3em;
 }
 
-.swal2-popup {
-    background-color: #1C1C1E; /* Set your desired background color here */
-    color: #1640D6;
-  }
-
+.chat-message {
+    margin-bottom: 15px;
+}
+.chat-message.sent {
+    text-align: right;
+}
+.chat-message.received {
+    text-align: left;
+}
+.chat-text {
+    display: inline-block;
+    padding: 10px;
+    border-radius: 5px;
+}
+.chat-date {
+    font-size: smaller;
+    display: block;
+    margin-top: 5px;
+}

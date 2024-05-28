@@ -20,6 +20,7 @@ urlpatterns = [
     path("comments", views.comment, name="comments"),
     path("editComment", views.comment, name="editComment"),
     path("delete", views.comment, name="delete"),
+    path("chat", views.chat, name="chat"),
     path("post/delete", views.post_view, name="post_delete"),
 
 

@@ -41,7 +41,7 @@ export function comment_(event, id , contents,document){
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken', document) // Function to retrieve CSRF token from cookie
+                    'X-CSRFToken': getCookie('csrftoken', document) 
                 },
                 body: JSON.stringify({
                     'id': id,
@@ -53,8 +53,8 @@ export function comment_(event, id , contents,document){
                     commentsList(event, id, contents,document);
                     let commentClick = document.getElementById(`${contents.id}_commentC`);
                     commentClick.onclick = () => {
-                        let id = contents.id;
-                        comment_(event, id, contents);
+                        let ids = contents.id;
+                        comment_(event, ids, contents,document);
                         commentClick.onclick = null;
                     };
 
